@@ -37,24 +37,24 @@ module "sg" {
     jenkins = {
       from_port   = 8080
       to_port     = 8080
-      ip_protocol = "tcp"         # Changed 'protocol' to 'ip_protocol'
+      ip_protocol = "tcp" # Changed 'protocol' to 'ip_protocol'
       description = "HTTP"
-      cidr_ipv4   = "0.0.0.0/0"   # Changed 'cidr_blocks' to 'cidr_ipv4'
+      cidr_ipv4   = "0.0.0.0/0" # Changed 'cidr_blocks' to 'cidr_ipv4'
     }
     ssh = {
       from_port   = 22
       to_port     = 22
-      ip_protocol = "tcp"         # Changed 'protocol' to 'ip_protocol'
+      ip_protocol = "tcp" # Changed 'protocol' to 'ip_protocol'
       description = "SSH"
-      cidr_ipv4   = "0.0.0.0/0"   # Changed 'cidr_blocks' to 'cidr_ipv4'
+      cidr_ipv4   = "0.0.0.0/0" # Changed 'cidr_blocks' to 'cidr_ipv4'
     }
   }
 
   # Changed from [ ] to { } and updated internal argument names
   egress_rules = {
     all_traffic = {
-      ip_protocol = "-1"          # Changed 'protocol' to 'ip_protocol'
-      cidr_ipv4   = "0.0.0.0/0"   # Changed 'cidr_blocks' to 'cidr_ipv4'
+      ip_protocol = "-1"        # Changed 'protocol' to 'ip_protocol'
+      cidr_ipv4   = "0.0.0.0/0" # Changed 'cidr_blocks' to 'cidr_ipv4'
     }
   }
 
@@ -64,19 +64,27 @@ module "sg" {
 }
 
 # EC2
-module "ec2_instance" {
-  source = "terraform-aws-modules/ec2-instance/aws"
+resource "aws_instance" "jenkins_server" { # Fixed: Added closing quote
 
-  name = "Jenkins-Server"
+  ami = "ami-00948338a4aeec604"
+  # Removed: name = "Jenkins-Server" (Invalid argument)
 
   instance_type               = var.instance_type
   key_name                    = "jenkins-server-key"
   monitoring                  = true
-  vpc_security_group_ids      = [module.sg.id] # Fixed: Changed security_group_id to id
+  vpc_security_group_ids      = [module.sg.id]
   subnet_id                   = module.vpc.public_subnets[0]
   associate_public_ip_address = true
   user_data                   = file("jenkins-install.sh")
   availability_zone           = data.aws_availability_zones.azs.names[0]
+
+  # Note: Since this is a native "aws_instance" resource and NOT a module, 
+  # your original block syntax here is perfectly correct!
+  root_block_device {
+    volume_size           = 30
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
 
   tags = {
     Name        = "Jenkins-Server"
