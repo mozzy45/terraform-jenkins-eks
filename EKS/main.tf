@@ -34,7 +34,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
 
-  name               = "my-cluster"
+  name               = "my-eks-cluster"
   kubernetes_version = "1.35"
 
   # FIX: If public access is false, private access MUST be true so nodes can reach the API
