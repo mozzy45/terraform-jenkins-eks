@@ -54,6 +54,11 @@ module "eks" {
       instance_types = [var.instance_type]
       # FORCE the correct, modern AMI type for EKS 1.35
       ami_type = "AL2023_x86_64_STANDARD"
+      # FORCE Terraform to completely finish deleting this resource 
+      # BEFORE it even touches the main cluster module during a destroy
+      depends_on = [
+        module.eks
+      ]
       
     }
   }
