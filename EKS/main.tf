@@ -36,9 +36,10 @@ module "eks" {
 
   name               = "my-eks-cluster"
   kubernetes_version = "1.35"
+  
 
-  endpoint_public_access  = false
-  endpoint_private_access = true
+  endpoint_public_access  = true
+  endpoint_private_access = false
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
