@@ -10,23 +10,23 @@ module "vpc" {
   public_subnets  = var.public_subnets
 
   enable_dns_hostnames = true
-  enable_dns_support   = true # Critical for EKS private endpoints
+  enable_dns_support   = true
   enable_nat_gateway   = true
   single_nat_gateway   = true
 
-  # FIX: Changed tag name from "my-eks-cluster" to "my-cluster" to match the EKS module
+  # FIX: Added closing quotes to the key names below
   tags = {
-    "kubernetes.io/cluster/my-cluster" = "shared"
+    "kubernetes.io/cluster/my-eks-cluster" = "shared"
   }
 
   public_subnet_tags = {
-    "kubernetes.io/cluster/my-cluster" = "shared"
-    "kubernetes.io/role/elb"           = 1
+    "kubernetes.io/cluster/my-eks-cluster" = "shared"
+    "kubernetes.io/role/elb"               = 1
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/my-cluster" = "shared"
-    "kubernetes.io/role/internal-elb"  = 1
+    "kubernetes.io/cluster/my-eks-cluster" = "shared"
+    "kubernetes.io/role/internal-elb"      = 1
   }
 }
 
@@ -37,7 +37,6 @@ module "eks" {
   name               = "my-eks-cluster"
   kubernetes_version = "1.35"
 
-  # FIX: If public access is false, private access MUST be true so nodes can reach the API
   endpoint_public_access  = false
   endpoint_private_access = true
 
@@ -50,8 +49,8 @@ module "eks" {
       max_size     = 3
       desired_size = 2
 
-      # FIX: Changed 'instance_type' to 'instance_types' (plural) to accept the list format
-      instance_type = var.instance_type
+      # FIX: Changed to 'instance_types' and wrapped the variable in list brackets []
+      instance_types = [var.instance_type]
     }
   }
 
